@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { auth } from "./auth";
 
 import {
@@ -8,31 +9,35 @@ import {
 } from "./routes";
 
 export default auth((req: any) => {
-  // const { nextUrl } = req;
-  // const isLoggedIn = !!req.auth;
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.auth;
 
-  // const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-  // const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  // const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
-  // if (isApiAuthRoute) {
-  //   return null;
-  // }
+  // Ignorar recursos estáticos
+  if (
+    nextUrl.pathname.startsWith("/_next") ||
+    nextUrl.pathname.startsWith("/static")
+  ) {
+    return NextResponse.next();
+  }
 
-  // if (isAuthRoute) {
-  //   if (isLoggedIn) {
-  //     return Response.redirect(new URL(defaultLoginRedirect, nextUrl)); // use nextUrl to mount the absolute URL
-  //   }
-  //   return null;
-  // }
+  if (isApiAuthRoute) {
+    return NextResponse.next(); // returning undefined
+  }
 
-  // if (!isLoggedIn && !isPublicRoute) {
-  //   return Response.redirect(new URL("/auth/login", nextUrl));
-  // }
+  if (isAuthRoute) {
+    if (isLoggedIn) {
+      return NextResponse.redirect(new URL(defaultLoginRedirect, nextUrl)); // use nextUrl to mount the absolute URL
+    }
+    return NextResponse.next(); // returning undefined
+  }
 
-  return null;
+  if (!isLoggedIn && !isPublicRoute) {
+    return NextResponse.redirect(new URL("/auth/login", nextUrl));
+  }
+
+  return NextResponse.next(); // returning undefined
 });
-
-// export const config = {
-//   matcher: ["/((?!.+\\.[\\w]+$_next).*)", "/", "/(api|trpc)(.*)"],
-// };

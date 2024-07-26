@@ -7,8 +7,6 @@ import { PrismaClient } from "@prisma/client";
 export const register = async (values: Values) => {
   const db = new PrismaClient();
 
-  console.log("Vai tomar no cu");
-
   if (!values.email || !values.password) {
     return { error: "Invalid fields" };
   }
